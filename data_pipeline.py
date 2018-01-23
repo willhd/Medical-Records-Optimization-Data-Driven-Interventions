@@ -9,6 +9,96 @@ from sqlalchemy import create_engine
 import psycopg2
 import sys
 import pprint
+import string
+import unicodedata
+import nltk
+from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
+from nltk.util import ngrams
+from nltk import pos_tag
+from nltk import RegexpParser
+from nltk.tag.stanford import NERTagger
+
+
+def silhouette(sparse_matrix, cluster_range):
+    """Returns silhouette coefficient for a provided number of clusters
+    Parameters
+    ----------
+    sparse_matrix : tfidf numpy array
+    -------
+    cluster_range (int): the number of clusters to to calculate
+    silhoutee score for
+
+    """
+
+    X = sparse_matrix
+    for n_cluster in range(cluster_range):
+    kmeans = KMeans(n_clusters=n_cluster + 1).fit(X)
+        label = kmeans.labels_
+        sil_coeff = silhouette_score(X, label, metric='euclidean')
+        print("For n_clusters={}, The Silhouette Coefficient is {}".format(n_cluster, sil_coeff))
+
+
+def get_top_five(X, transform_content, n_clusters=20, max_features=None):
+    content_means = KMeans(n_clusters=n_clusters)
+    content_means.fit(transform_content)
+    top_five = np.argsort(content_means.cluster_centers_, axis=1)[:, -20:]
+    for i in range(top_five.shape[0]):
+        print(np.array(tfidf.get_feature_names())[top_five[i]])
+
+
+def extract_bow_from_raw_text(text_as_string):
+    """Extracts bag-of-words from a raw text string, and removes names.
+    Parameters
+    ----------
+    text (str): a text document given as a string
+    Returns
+    -------
+    list : the list of the tokens extracted and filtered from the text
+    """
+    if (text_as_string == None):
+        return []
+
+    if (len(text_as_string) < 1):
+        return []
+
+    nfkd_form = unicodedata.normalize('NFKD', text_as_string)
+    text_input = str(nfkd_form.encode('ASCII', 'ignore'))
+
+    sent_tokens = sent_tokenize(text_input)
+        st = NERTagger('stanford-ner/all.3class.distsim.crf.ser.gz',
+                       'stanford-ner/stanford-ner.jar')
+        for sent in sent_tokens:
+        tags = st.tag(tokens)
+        for tag in tags:
+            if tag[1] == 'PERSON':
+                tokens.del(tag)
+
+    tokens = list(map(word_tokenize, sent_tokens))
+
+    sent_tags = list(map(pos_tag, tokens))
+
+    grammar = r"""
+        SENT: {<(J|N).*>}
+    """
+
+    cp = RegexpParser(grammar)
+    ret_tokens = list()
+    stemmer_snowball = SnowballStemmer('english')
+    import nltk
+
+    for sent in sent_tags:
+        tree = cp.parse(sent)
+        for subtree in tree.subtrees():
+            if subtree.label() == 'SENT':
+                t_tokenlist = [tpos[0].lower() for tpos in subtree.leaves()]
+                t_tokens_stemsnowball = list(map(stemmer_snowball.stem, t_tokenlist))
+                ret_tokens.extend(t_tokens_stemsnowball)
+    return(ret_tokens)
+
 
 # establish connection to database that contains chart information and s3_urls
 conn = psycopg2.connect(dbname='charts_development',
