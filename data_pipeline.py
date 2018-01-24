@@ -45,6 +45,17 @@ def documents_to_pandas(s3_client, s3_urls, dataframe, start, end):
 
 
 def get_chart_data(s3_client, Bucket, Key):
+    """ open s3_bucket,
+        get the data
+        delete the dictionary get_object
+        return the text data from s3 """
+    chart_object = s3.get_object(Bucket=Bucket, Key=Key)
+    chart_data = chart_object['Body'].read()
+    del(chart_object)
+    return chart_data
+
+
+def get_chart_data(s3_client, Bucket, Key):
     """open s_3 bucket get the data and return the text"""
     s3_client = start_session()
     with s3_client.get_object(Bucket=Bucket, Key=Key) as chart_object:
@@ -71,10 +82,16 @@ def silhouette(sparse_matrix, cluster_range):
         print("For n_clusters={}, The Silhouette Coefficient is {}".format(n_cluster, sil_coeff))
 
 
-def get_top_five(X, transform_content, n_clusters=20, max_features=None):
+def get_top_five(transform_content, n_clusters, max_features=None):
+    """Extracts top five words from each cluster
+    ----------
+    n_clusters (int): specifies number of k-means clusters
+    -------
+    transform_content : sparse_matrix of word counts
+    """
     content_means = KMeans(n_clusters=n_clusters)
     content_means.fit(transform_content)
-    top_five = np.argsort(content_means.cluster_centers_, axis=1)[:, -20:]
+    top_five = np.argsort(content_means.cluster_centers_, axis=1)[:, -5:]
     for i in range(top_five.shape[0]):
         print(np.array(tfidf.get_feature_names())[top_five[i]])
 
