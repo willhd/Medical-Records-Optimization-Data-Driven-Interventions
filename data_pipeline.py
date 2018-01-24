@@ -23,6 +23,14 @@ from nltk import RegexpParser
 from nltk.tag.stanford import NERTagger
 
 
+def get_chart_data(s3_client, Bucket, Key):
+    """open s_3 bucket get the data and return the text"""
+    s3_client = start_session()
+    with s3_client.get_object(Bucket=Bucket, Key=Key) as chart_object:
+        chart_data = chart_object['Body'].read()
+    return chart_data
+
+
 def silhouette(sparse_matrix, cluster_range):
     """Returns silhouette coefficient for a provided number of clusters
     Parameters
