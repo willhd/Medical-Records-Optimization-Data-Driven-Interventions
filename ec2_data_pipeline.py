@@ -42,10 +42,21 @@ def docs_to_pandas(s3_client, s3_urls, dataframe):
     return dataframe
 
 
+def s3_links_to_text(s3_urls):
+    charts = []
+    for s3_url in s3_urls:
+        offset = len('s3://chartpull-agent-storage/')
+        Key = s3_url[offset:]
+        Bucket = 'chartpull-agent-storage'
+        chart_note = get_chart_data(Bucket=Bucket, Key=Key)
+        charts.append(chart_note)
+    return charts
+
+
 documents_df = docs_to_pandas(s3, docs_df["s3_url"], docs_df)
 
 if __name__ == "__main__":
     s3 = start_session()
     docs_df = read_data()
     documents_df = docs_to_pandas(s3, docs_df["s3_url"], docs_df)
-    documents_df.to_json('data.json')
+    documents_df.to_json('chartdata.json')
