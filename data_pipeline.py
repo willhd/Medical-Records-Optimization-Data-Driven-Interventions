@@ -23,6 +23,27 @@ from nltk import RegexpParser
 from nltk.tag.stanford import NERTagger
 
 
+def chunk_data(df, column):
+    """ chunks streaming data by 1000"""
+    for i in range(0, len(df), 1000):
+    start = i
+    end = i + 1000
+    doc_df = documents_to_pandas(s3, docs_df[column], docs_df, start, end)
+
+
+def documents_to_pandas(s3_client, s3_urls, dataframe, start, end):
+    """returns pandas dataframe with encounter_note column from s3_url in chuncks"""
+    charts = []
+    for s3_url in s3_urls[start:end]:
+        offset = len('s3://chartpull-agent-storage/')
+        Key = s3_url[offset:]
+        Bucket = 'chartpull-agent-storage'
+        chart_note = get_chart_object(s3_client=s3_client, Bucket=Bucket, Key=Key)
+        charts.append(chart_note)
+    dataframe.loc[start:end - 1, 'encounter-note'] = charts
+    return dataframe
+
+
 def get_chart_data(s3_client, Bucket, Key):
     """open s_3 bucket get the data and return the text"""
     s3_client = start_session()
