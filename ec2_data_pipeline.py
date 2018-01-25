@@ -3,19 +3,9 @@ import pandas as pd
 import numpy as np
 
 
-def read_data():
-    docs_df = pd.read_csv('~/docs_data.csv')
-    return docs_df
-
-
-def get_urls(df):
-    s3_urls = docs_df['s3_url']
-    return s3_urls
-
-
-def start_session():
-    '''starts a bloom records s3 session with boto3'''
-    session = boto3.Session(profile_name='bloom')
+def start_session(profile_name):
+    '''starts s3 session with boto3'''
+    session = boto3.Session(profile_name=profile_name)
     s3 = session.client('s3')
     return s3
 
@@ -43,6 +33,7 @@ def docs_to_pandas(s3_client, s3_urls, dataframe):
 
 
 def s3_links_to_text(s3_urls):
+    """converts links to text body"""
     charts = []
     for s3_url in s3_urls:
         offset = len('s3://chartpull-agent-storage/')
@@ -53,10 +44,22 @@ def s3_links_to_text(s3_urls):
     return charts
 
 
-documents_df = docs_to_pandas(s3, docs_df["s3_url"], docs_df)
+def read_data(path):
+    """converts data to pandas dataframe"""
+    docs_df = pd.read_csv()
+    return docs_df
+
+
+def get_urls(df):
+    """ obtains urls as list from pandas dataframe"""
+    s3_urls = list(docs_df['s3_url'])
+    return s3_urls
+
 
 if __name__ == "__main__":
     s3 = start_session()
     docs_df = read_data()
+    s3_urls = get_urls(docs_df)
+    notes = s3_links_to_text(s3_urls)
     documents_df = docs_to_pandas(s3, docs_df["s3_url"], docs_df)
     documents_df.to_json('chartdata.json')
