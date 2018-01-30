@@ -29,6 +29,7 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.util import ngrams
 from nltk import pos_tag
 from nltk import RegexpParser
+from sklearn.linear_model import LogisticRegression
 
 
 def train_Multinomial(data="nb_data.json"):
@@ -104,6 +105,57 @@ def plot_Multinomial(hard_or_soft, path):
         ax2.set_ylim(-0.1, 1.1)
         ax2.set_xlim(-0.1, 1.1)
         plt.savefig(path)
+
+
+def calculate_threshold_values(prob, y):
+    '''
+    returns profits associated with thresholds from various confusion-matrix
+    ratios by threshold
+    from a list of predicted probabilities and actual y values
+    '''
+
+    n_obs = float(len(y))
+
+    predicted_probs = prob
+
+    initial = [] if 1 in predicted_probs else [1]
+    thresholds = initial + sorted(predicted_probs, reverse=True)
+    cost_benefit = np.array([[2000, -150], [0, 0]])
+    thresholds = np.arange(0, 1.1, 0.1)
+    profits = []
+    for threshold in thresholds:
+        y_predict = predicted_probs > threshold
+        confusion_matrix = standard_confusion_matrix(y, y_predict)
+        threshold_profit = np.sum(confusion_matrix * cost_benefit)
+        profits.append(threshold_profit / n_obs)
+    return thresholds, profits
+
+
+def standard_confusion_matrix(y_true, y_pred):
+    """Make confusion matrix with format:
+                  -----------
+                  | TP | FP |
+                  -----------
+                  | FN | TN |
+                  -----------
+    from two 1D arrays 
+    """
+    [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
+    return np.array([[tp, fp], [fn, tn]])
+
+
+def profit_curve():
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    xlog, ylog = calculate_threshold_values(y_hat_prob[:, 1], y_test)
+    x, y = calculate_threshold_values(yhat_log_prob[:, 1], y_test)
+
+    ax.plot(xlog, ylog)
+    ax.plot(x, y)
+    ax.set_xlabel('thresholds')
+    ax.set_ylabel('profits')
+    ax.set_title('Profit Curve')
+    ax.set_xlim(xmin=0, xmax=1)
 
 
 def train_Bernoulli(data="nb_data.json"):
