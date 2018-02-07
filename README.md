@@ -1,5 +1,7 @@
 # Medical Records Optimization & Data Driven Interventions
 
+ As a contract Data Scientist for a medical records company I built a data optimization pipeline that extracts structured information from clinical notes using NLP and latent dirichlet allocation topic modeling. Additionally, I built a tool for our users that utilizes supervised machine learning to predict the probability of annual hospitalization given the contents of a specified medical note. This tool is estimated to save up $2,500 per patient annually by targeting preventative interventions for patients most at risk for hospitalization.
+
 Capstone project for Data Science Immersive at [Galvanize](https://www.galvanize.com/seattle/data-science|Galvanize) in Seattle.
 
 ## Background
@@ -20,15 +22,16 @@ DISCLAIMER: The data used for this is highly sensitive private health care infor
 
 ## Files
 
-images for demonstration
+Place images here
 
 ## Built With
 
-*
-* [Python]
-* [Amazon Web Services]()
-* [Postgres]()
+* [Python](https://www.python.org/)
+* [Amazon Web Services](https://aws.amazon.com/)
+* [Postgres](https://www.postgresql.org/)
 * [scikit-learn](http://scikit-learn.org/stable/)
+* [genism](https://radimrehurek.com/gensim/)
+
 
 ## Partner Company
 
