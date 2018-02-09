@@ -1,11 +1,13 @@
 # Medical Records Optimization & Data Driven Interventions
 
- As a contract Data Scientist for a medical records company I built a data optimization pipeline that extracts structured information from clinical notes using NLP and latent dirichlet allocation topic modeling. Additionally, I built a tool for our users that utilizes supervised machine learning to predict the probability of annual hospitalization given the contents of a specified medical note. This tool is estimated to save up $2,500 per patient annually by targeting preventative interventions for patients most at risk for hospitalization.
+ As a contract Data Scientist for a medical-records company I built a data-optimization pipeline that extracts structured information from clinical notes using NLP and latent dirichlet allocation topic modeling. Additionally, I built a tool for our users that utilizes supervised machine learning to predict the probability of annual hospitalization given the contents of a specified medical note. This tool is estimated to save up $2,500 per patient annually by targeting preventative interventions for patients most at risk for hospitalization.
 
-Capstone project for Data Science Immersive at [Galvanize](https://www.galvanize.com/seattle/data-science|Galvanize) in Seattle.
+![Screenshot](profits-graph.png)
 
 ## Background
 This project was built for the purpose of optimizing information exchange in health care.
+
+Capstone project for Data Science Immersive at [Galvanize](https://www.galvanize.com/seattle/data-science|Galvanize) in Seattle.
 
 ### Objectives
 >Extract structured data from unstructured medical texts through a secure AWS python integrated class
@@ -40,4 +42,4 @@ Place images here
 
 ## Acknowledgments
 
-* The instructors at Galvanize: Matt Drury, Miles Erickson, and Jack Benneto
+* The instructors at Galvanize: Matt Drury, Miles Erickson, and Jack Bennetto
