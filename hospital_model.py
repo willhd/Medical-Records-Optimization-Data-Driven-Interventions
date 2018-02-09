@@ -32,13 +32,13 @@ from nltk import RegexpParser
 from sklearn.linear_model import LogisticRegression
 
 
-class HospitalModel(data, )
+class HospitalModel(data)
     def __init__(self, alpha=0.1, n_jobs=-1, max_features='sqrt',
                  NaiveBayes=True, LogisticRegression=True):
         """
         INPUT:
         - n_jobs = Number of jobs to run models on
-        - max_features = Number of featres to consider for CountVectorizer, default is 'sqrt'
+        - max_features = Number of features to consider for CountVectorizer, default is 'sqrt'
         - NaiveBayes = Bool, run MNB
         - LogisticRegression = Bool, run LogR
 
@@ -54,6 +54,7 @@ class HospitalModel(data, )
         self.LogR = LogisticRegression(penalty='l2', C=0.5, max_iter=100000, class_weight={0: 0.07, 1: 0.93}, random_state=22, solver='sag'))
         self.Data=None
         self.TF=None
+        self.Target=None
 
     def train_model(self, column):
         """fits model to specified column of raw text documents"""
@@ -62,6 +63,7 @@ class HospitalModel(data, )
         self.TF=features.transform(corpus)
         X=self.TF
         y=self.Data[column]
+        self.target=y
         X_train, X_test, y_train, y_test=train_test_split(X, y, test_size = 0.33, random_state = 42)
         if self.NaiveBayes == True:
             self.MNB.fit(X_train, y_train)
@@ -69,13 +71,9 @@ class HospitalModel(data, )
             self.LogR.fit(X_train, y_train)
 
 
-    def score_model(self):
-        Multinomial_model=train_Multinomial(data)
-        y_hat=Multinomial_model.predict(X_test)
-        y_hat_prob=Multinomial_model.predict_proba(X_test)
-        print("acc score: {}".format(accuracy_score(y_test, y_hat)))
-        print("prec score: {}".format(precision_score(y_test, y_hat)))
-        print("recll score:{}".format(recall_score(y_test, y_hat)))
+    def score_model(self, model, cv):
+        "scores model with cross validation with cv folds"
+        scores=cross_val_score(self.model, self.TF, , cv = cv)
 
 
     def plot_model(self, hard_or_soft, path):
@@ -179,78 +177,3 @@ class HospitalModel(data, )
         ax.set_ylabel('profits')
         ax.set_title('Profit Curve')
         ax.set_xlim(xmin = 0, xmax = 1)
-
-
-    def train_Bernoulli(self):
-        nb_df=pd.read_json(data)
-        all_docs=nb_df["encounter-note"].values
-        Bclf=BernoulliNB(alpha = 0.01)
-        b_tf=CountVectorizer(stop_words = 'english', tokenizer = xtokenizer)
-        features=b_tf.fit(all_docs)
-        f_transform=features.transform(all_docs)
-        X=f_transform
-        y=nb_df["label"]
-        X_train, X_test, y_train, y_test=train_test_split(X, y, test_size = 0.33, random_state = 42)
-        Bernoulli_model=Bclf.fit(X_train, y_train)
-        return Bernoulli_model
-
-
-    def score_Bernoulli(self):
-        Bernoulli_model=train_Bernoulli(data)
-        yhat_b=Bernoulli_model.predict(X_test)
-        yhat_b_prob=Bernoulli_model.predict_proba(X_test)
-        print("accuracy_score : {}".format(accuracy_score(y_test, yhat_b)))
-        print("precision_score: {}".format(precision_score(y_test, yhat_b)))
-        print("recall_score:{}".format(recall_score(y_test, yhat_b)))
-
-
-    def plot_Bernoulli(self, hard_or_soft, path):
-        Bernoulli_model=train_Bernoulli(data)
-        yhat_b=Bernoulli_model.predict(X_test)
-        yhat_b_prob=Bernoulli_model.predict_proba(X_test)
-        if hard_or_soft == "hard":
-            false_positive_rate, true_positive_rate, thresholds=roc_curve(y_test, yhat_b)
-            roc_auc=auc(false_positive_rate, true_positive_rate)
-            plt.figure(figsize = (8, 8))
-            plt.title('Receiver Operating Characteristic')
-            plt.plot(false_positive_rate, true_positive_rate, 'b',
-                     label = 'AUC = %0.2f' % roc_auc)
-            plt.legend(loc = 'lower right')
-            plt.plot([0, 1], [0, 1], color = 'black', linestyle = 'dashed')
-            plt.xlim([-0.1, 1.2])
-            plt.ylim([-0.1, 1.2])
-            plt.ylabel('True Positive Rate')
-            plt.xlabel('False Positive Rate')
-            # plots the thresholds
-            ax2=plt.gca()
-            ax2.plot(false_positive_rate, thresholds,
-                     markeredgecolor = 'black', linestyle = 'dashed', color = 'red')
-            ax2.set_ylabel('Threshold', color = 'red')
-            ax2.set_ylim([thresholds[-1], thresholds[0]])
-            ax2.set_xlim([false_positive_rate[0], false_positive_rate[-1]])
-            ax2.set_ylim(-0.1, 1.1)
-            ax2.set_xlim(-0.1, 1.1)
-            plt.savefig(path)
-        else:
-            false_positive_rate, true_positive_rate, thresholds=roc_curve(y_test, yhat_b_prob[:, 1])
-            roc_auc=auc(false_positive_rate, true_positive_rate)
-            plt.figure(figsize = (8, 8))
-            plt.title('Receiver Operating Characteristic')
-            plt.plot(false_positive_rate, true_positive_rate, 'b',
-                     label = 'AUC = %0.2f' % roc_auc)
-            plt.legend(loc = 'lower right')
-            plt.plot([0, 1], [0, 1], color = 'black', linestyle = 'dashed')
-            plt.xlim([-0.1, 1.2])
-            plt.ylim([-0.1, 1.2])
-            plt.ylabel('True Positive Rate')
-            plt.xlabel('False Positive Rate')
-            # plots the thresholds
-            ax2=plt.gca()
-            ax2.plot(false_positive_rate, thresholds,
-                     markeredgecolor = 'black', linestyle = 'dashed', color = 'red')
-            ax2.set_ylabel('Threshold', color = 'red')
-            ax2.set_ylim([thresholds[-1], thresholds[0]])
-            ax2.set_xlim([false_positive_rate[0], false_positive_rate[-1]])
-            ax2.set_ylim(-0.1, 1.1)
-            ax2.set_xlim(-0.1, 1.1)
-            plt.savefig(path)

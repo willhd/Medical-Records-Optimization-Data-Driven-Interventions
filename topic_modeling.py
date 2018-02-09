@@ -22,30 +22,48 @@ from sklearn.preprocessing import StandardScaler
 """This class fits LDA model to raw text documents and provides methods for exploring latent features"""
 
 
-class EncounterTypes(data, LDA=True)
+class EncounterTypes(data, LDA=True):
+    def __init__(self, n_jobs=-1, max_features='sqrt',
+                 NMF=True, LDA=True):
+        """
+        INPUT:
+        - n_jobs = Number of jobs to run models on
+        - max_features = Number of features to consider for CountVectorizer, default is 'sqrt'
+        - NMF = Bool, run NMF
+        - LDA = Bool, run LDA
 
-    def label_counts(n):
+        ATTRIBUTES:
+        - LdaModel= Logistic Regression Classifier
+        - NmfModel = Multinomial Naive Bayes Classifier
+        - Data = json string with document column
+        """
+        self.LdaModel = None
+        self.NmfModel = None
+        self.Data = Encounter
+        self.TOPICS = None
+
+    def label_counts(self, n):
         notes = []
         for i in range(len(all_documents)):
             if np.argmax(predictions_lda[i][:]) == n:
                 notes.append(i)
         return len(notes)
 
-    def find_notes_labeled(n):
+    def find_notes_labeled(self, n):
         notes = []
         for i in range(len(all_documents)):
             if np.argmax(predictions_lda[i][:]) == n:
             notes.append(i)
         return notes
 
-    def encounter_label(label):
+    def encounter_label(self, label):
         doc = all_documents[label].strip()
         lbl = np.argmax(predictions_lda[label][:])
         # return (lbl,doc.strip())
         print(lbl)
         print(doc.strip())
 
-    def display_topics(model, feature_names, no_top_words):
+    def display_topics(self, model, feature_names, no_top_words):
         for topic_idx, topic in enumerate(model.components_):
             print("Topic %d:" % (topic_idx))
             print(" ".join([feature_names[i]
