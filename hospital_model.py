@@ -76,24 +76,22 @@ class HospitalModel(data)
         scores=cross_val_score(self.model, self.TF, , cv = cv)
 
 
-    def plot_model(self, hard_or_soft, path):
-        Multinomial_model=train_Multinomial(data)
-        y_hat=Multinomial_model.predict(X_test)
-        y_hat_prob=Multinomial_model.predict_proba(X_test)
-        if hard_or_soft == "hard":
-            false_positive_rate, true_positive_rate, thresholds=roc_curve(y_test, y_hat)
-            roc_auc=auc(false_positive_rate, true_positive_rate)
-            plt.figure(figsize = (8, 8))
-            plt.title('Receiver Operating Characteristic')
-            plt.plot(false_positive_rate, true_positive_rate, 'b',
-                     label = 'AUC = %0.2f' % roc_auc)
-            plt.legend(loc = 'lower right')
-            plt.plot([0, 1], [0, 1], color = 'black', linestyle = 'dashed')
-            plt.xlim([-0.1, 1.2])
-            plt.ylim([-0.1, 1.2])
-            plt.ylabel('True Positive Rate')
-            plt.xlabel('False Positive Rate')
-            # plots the thresholds
+    def plot_model(self, path, thresholds = False):
+        """plots ROC_AUC at designated path"""
+        false_positive_rate, true_positive_rate, thresholds=roc_curve(y_test, y_hat_prob[:, 1])
+        roc_auc=auc(false_positive_rate, true_positive_rate)
+        plt.figure(figsize = (8, 8))
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(false_positive_rate, true_positive_rate, 'b',
+                 label = 'AUC = %0.2f' % roc_auc)
+        plt.legend(loc = 'lower right')
+        plt.plot([0, 1], [0, 1], color = 'black', linestyle = 'dashed')
+        plt.xlim([-0.1, 1.2])
+        plt.ylim([-0.1, 1.2])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
+        # plots the thresholds on twin axis
+        if thresholds == True:
             ax2=plt.gca()
             ax2.plot(false_positive_rate, thresholds,
                      markeredgecolor = 'black', linestyle = 'dashed', color = 'red')
@@ -102,37 +100,17 @@ class HospitalModel(data)
             ax2.set_xlim([false_positive_rate[0], false_positive_rate[-1]])
             ax2.set_ylim(-0.1, 1.1)
             ax2.set_xlim(-0.1, 1.1)
-            plt.savefig(path)
-        else:
-            false_positive_rate, true_positive_rate, thresholds=roc_curve(y_test, y_hat_prob[:, 1])
-            roc_auc=auc(false_positive_rate, true_positive_rate)
-            plt.figure(figsize = (8, 8))
-            plt.title('Receiver Operating Characteristic')
-            plt.plot(false_positive_rate, true_positive_rate, 'b',
-                     label = 'AUC = %0.2f' % roc_auc)
-            plt.legend(loc = 'lower right')
-            plt.plot([0, 1], [0, 1], color = 'black', linestyle = 'dashed')
-            plt.xlim([-0.1, 1.2])
-            plt.ylim([-0.1, 1.2])
-            plt.ylabel('True Positive Rate')
-            plt.xlabel('False Positive Rate')
-            # plots the thresholds
-            ax2=plt.gca()
-            ax2.plot(false_positive_rate, thresholds,
-                     markeredgecolor = 'black', linestyle = 'dashed', color = 'red')
-            ax2.set_ylabel('Threshold', color = 'red')
-            ax2.set_ylim([thresholds[-1], thresholds[0]])
-            ax2.set_xlim([false_positive_rate[0], false_positive_rate[-1]])
-            ax2.set_ylim(-0.1, 1.1)
-            ax2.set_xlim(-0.1, 1.1)
-            plt.savefig(path)
+        plt.savefig(path)
 
 
-    def calculate_threshold_values(self, prob, y):
+    def calculate_threshold_values(self, prob, y, cost_benefit):
         '''
-        returns profits associated with thresholds from various confusion-matrix
+        returns profit values associated with thresholds from various confusion-matrix
         ratios by threshold
-        from a list of predicted probabilities and actual y values
+
+        from a list of predicted probabilities and actual y values,
+
+        the cost_benefit matrix argument is a numpy array for example: cost_benefit=np.array([[2000, -150], [0, 0]])
         '''
 
         n_obs=float(len(y))
@@ -141,7 +119,8 @@ class HospitalModel(data)
 
         initial=[] if 1 in predicted_probs else [1]
         thresholds=initial + sorted(predicted_probs, reverse = True)
-        cost_benefit=np.array([[2000, -150], [0, 0]])
+
+        cost_benefit=cost_benefit
         thresholds=np.arange(0, 1.1, 0.1)
         profits=[]
         for threshold in thresholds:
@@ -166,6 +145,7 @@ class HospitalModel(data)
 
 
     def profit_curve(self):
+        '''plots the profit curve for the associated cost-bennifit and confusion_matrix'''
         fig, ax=plt.subplots(figsize = (10, 10))
 
         xlog, ylog=calculate_threshold_values(y_hat_prob[:, 1], y_test)
