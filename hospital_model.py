@@ -7,33 +7,18 @@ import json
 import pickle
 from multiprocessing.dummy import Pool as ThreadPool
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.cluster import KMeans, DBSCAN
-from sklearn.metrics import silhouette_score, confusion_matrix, accuracy_score, recall_score, precision_score, roc_curve, auc
 from sklearn.decomposition import LatentDirichletAllocation, NMF, PCA
-from sklearn.metrics import classification_report
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
-import matplotlib.pyplot as plt
-import seaborn as sn
-from sklearn.metrics import classification_report, silhouette_samples, silhouette_score
+from sklearn.metrics import classification_report, silhouette_samples, silhouette_score, confusion_matrix, accuracy_score, recall_score, precision_score, roc_curve, auc
+from sklearn.cross_validation import cross_val_score, cross_val_predict
 from sklearn.model_selection import train_test_split
-from sklearn.datasets.samples_generator import make_blobs
-from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 %matplotlib inline
-import unicodedata
-import nltk
-from nltk.tokenize import sent_tokenize
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
-from nltk.stem.snowball import SnowballStemmer
-from nltk.util import ngrams
-from nltk import pos_tag
-from nltk import RegexpParser
 from sklearn.linear_model import LogisticRegression
 
 
-class HospitalModel(data)
-    def __init__(self, alpha=0.1, n_jobs=-1, max_features='sqrt',
+class HospitalModel(object)
+    def __init__(self, data, alpha=0.1, n_jobs=-1, max_features='sqrt',
                  NaiveBayes=True, LogisticRegression=True):
         """
         INPUT:
@@ -41,11 +26,12 @@ class HospitalModel(data)
         - max_features = Number of features to consider for CountVectorizer, default is 'sqrt'
         - NaiveBayes = Bool, run MNB
         - LogisticRegression = Bool, run LogR
+        - data = Path to data file as JSON string
 
         ATTRIBUTES:
         - LogR= Logistic Regression Classifier
         - MNB = Multinomial Naive Bayes Classifier
-        - Data = json string with document column
+        - Data = pandas dataframe converted from json string with document column
         """
         self.xtokenizer = xtokenizer
         self.CV = CountVectorizer(n_jobs=n_jobs, max_features=max_features,
@@ -55,6 +41,11 @@ class HospitalModel(data)
         self.Data=None
         self.TF=None
         self.Target=None
+        self.Train=None
+        self.X_train
+        self.X_test
+        self.y_train
+        self.y_test
 
     def train_model(self, column):
         """fits model to specified column of raw text documents"""
@@ -63,17 +54,29 @@ class HospitalModel(data)
         self.TF=features.transform(corpus)
         X=self.TF
         y=self.Data[column]
-        self.target=y
-        X_train, X_test, y_train, y_test=train_test_split(X, y, test_size = 0.33, random_state = 42)
+        self.Target=y
+        self.X_train, self.X_test, self.y_train, self.y_test=train_test_split(
+            X, y, test_size = 0.33, random_state = 42)
         if self.NaiveBayes == True:
             self.MNB.fit(X_train, y_train)
         if self.LogisticRegression == True:
             self.LogR.fit(X_train, y_train)
 
 
-    def score_model(self, model, cv):
+    def cross_val_score(self, model, cv):
         "scores model with cross validation with cv folds"
-        scores=cross_val_score(self.model, self.TF, , cv = cv)
+        scores=cross_val_score(self.model, self.TF, cv = cv)
+        return scores.mean()
+
+    def model_score(self):
+        """scores classification model on test set.
+
+        report includes: precision, recall, f1-score, and support for both groups 0 and 1.
+
+        """
+        yhat=self.Train.predict(self.X_test)
+        yhat_prob=self.Train.predict_proba(self.X_test)
+        return classification_report(self.y_test, yhat)
 
 
     def plot_model(self, path, thresholds = False):
@@ -157,3 +160,25 @@ class HospitalModel(data)
         ax.set_ylabel('profits')
         ax.set_title('Profit Curve')
         ax.set_xlim(xmin = 0, xmax = 1)
+
+
+    def xtokenizer(self, text):
+        return [xnumbers(word) for word in self.tokenizer(text)]
+
+    def xnumbers(word):
+        if word.startswith("0") and ":" not in word and "/" not in word:
+            output=''
+            for letter in word:
+                if letter == "0":
+                    output += "0"
+                else:
+                    break
+            while len(output) < len(word):
+                output += 'x'
+            return output
+        else:
+            return word
+
+    def tokenizer(text, token_pattern = r"(?u)\b\w\w+\b"):
+        token_pattern=re.compile(token_pattern)
+        return token_pattern.findall(text)
