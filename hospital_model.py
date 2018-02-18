@@ -163,13 +163,22 @@ class HospitalModel(object)
         ax.set_title('Profit Curve')
         ax.set_xlim(xmin = 0, xmax = 1)
 
+    def coef_log(self):
+        """ returns log_coef and associated word as feature"""
+        for i, w in sorted(zip(self.log_model.coef_[0], self.TF.vocabulary_), reverse = True):
+            if w.isalpha():
+                return (i, w)
+
     def nametokens(self, names):
+        """initialize a set of names to remove from tokens"""
         self.names=set(names)
 
     def xtokenizer(self, text):
+        """apply xnumbers to tokens"""
         return [xnumbers(word) for word in self.tokenizer(text)]
 
     def xnumbers(self, word):
+        """replace long numbers x to reduce uniquness for feture importance, also remove named tokens using set of names specified by 'nametokens' """
         if word.startswith("0") and ":" not in word and "/" not in word:
             output=''
             for letter in word:
@@ -188,5 +197,6 @@ class HospitalModel(object)
                 return word
 
     def tokenizer(text, token_pattern = r"(?u)\b\w\w+\b"):
+        """base tokenizer for additonal customization"""
         token_pattern=re.compile(token_pattern)
         return token_pattern.findall(text)
