@@ -34,6 +34,7 @@ class HospitalModel(object)
         - Data = pandas dataframe converted from json string with document column
         """
         self.xtokenizer = xtokenizer
+        self.names = None  # set of names to remove during tokenization step
         self.CV = CountVectorizer(n_jobs=n_jobs, max_features=max_features,
                                   stop_words='english', tokenizer=self.xtokenizer)
         self.MNB = MultinomialNB(alpha=alpha)
@@ -46,6 +47,7 @@ class HospitalModel(object)
         self.X_test
         self.y_train
         self.y_test
+
 
     def train_model(self, column):
         """fits model to specified column of raw text documents"""
@@ -135,7 +137,7 @@ class HospitalModel(object)
 
 
     def standard_confusion_matrix(self, y_true, y_pred):
-        """Make confusion matrix with format:
+        """Connverts sci-kit leaen confusion matrix to standard matrix with format:
                       -----------
                       | TP | FP |
                       -----------
@@ -161,11 +163,13 @@ class HospitalModel(object)
         ax.set_title('Profit Curve')
         ax.set_xlim(xmin = 0, xmax = 1)
 
+    def nametokens(self, names):
+        self.names=set(names)
 
     def xtokenizer(self, text):
         return [xnumbers(word) for word in self.tokenizer(text)]
 
-    def xnumbers(word):
+    def xnumbers(self, word):
         if word.startswith("0") and ":" not in word and "/" not in word:
             output=''
             for letter in word:
@@ -177,7 +181,11 @@ class HospitalModel(object)
                 output += 'x'
             return output
         else:
-            return word
+            # return word
+            if word in self.names:
+                return ''
+            else:
+                return word
 
     def tokenizer(text, token_pattern = r"(?u)\b\w\w+\b"):
         token_pattern=re.compile(token_pattern)
