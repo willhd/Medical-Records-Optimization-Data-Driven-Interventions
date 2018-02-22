@@ -10,13 +10,13 @@ This project was built for the purpose of optimizing information exchange in hea
 Capstone project for Data Science Immersive at [Galvanize](https://www.galvanize.com/seattle/data-science|Galvanize) in Seattle.
 
 ### Objectives
->Extract structured data from unstructured medical texts through a secure AWS python integrated class
+>Extract structured data from unstructured medical texts through a secure AWS python integrated class.  
 
->Deploy NLP and topic modeling to label medical encounters
+>Deploy NLP and topic modeling to label medical encounters. Refer to topic_modeling.py and nlp.py
 
->Model the probability of a specified encounter resulting in hospitalization.
+>Model the probability of a specified encounter resulting in hospitalization. Refer to hospital_model.py. 
 
->Deploy structured database with models as sustainable secure software on cloud
+>Deploy structured database with models as sustainable secure software on cloud.
 
 
 ###  The Data
@@ -24,7 +24,7 @@ DISCLAIMER: The data used for this is highly sensitive private health care infor
 
 ## Files
 
-Place images here
+relevent visualizations can be found in the images folder 
 
 ## Built With
 
