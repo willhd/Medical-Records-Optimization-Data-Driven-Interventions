@@ -27,10 +27,10 @@ class FeatureExtraction(object):
         """returns dataframe with extracted features from corpus"""
         self.features['id'] = self.data['pt_id']
         self.features['doc_id'] = self.data['doc_id']
-        self.features['dx'] = self.data['encounter_note'].apply(lookup_dx)
-        self.features['age'] = self.data['encounter_note'].apply(lookup_age)
-        self.features['sex'] = self.data['encounter_note'].apply(lookup_sex)
-        self.features['dt'] = self.data['encounter_note'].apply(lookup_visit_date)
+        self.features['dx'] = self.data['encounter_note'].apply(self.lookup_dx)
+        self.features['age'] = self.data['encounter_note'].apply(self.lookup_age)
+        self.features['sex'] = self.data['encounter_note'].apply(self.lookup_sex)
+        self.features['dt'] = self.data['encounter_note'].apply(self.lookup_visit_date)
 
     def lookup_dx(self, chart_note):
         """returns list of diagnosis from a chart_note string"""
@@ -55,3 +55,7 @@ class FeatureExtraction(object):
     def lookup_sex(self, chart_note):
         sex = re.findall("sex:.(.*?)\DOB", chart_note, flags=re.I)
         return sex[0].strip()
+
+
+if __name__ == '__main__':
+    extraction = FeatureExtraction()
